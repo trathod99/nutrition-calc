@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Airtable/DataTables Test</title>
+    <!-- DEPENDENCIES -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <!-- <script src="node_modules/airtable/build/airtable.browser.js"></script> -->
@@ -14,28 +15,57 @@
         // Build clean json object w/ menu items
         function MenuItem(item) {
             this.item = item["Menu Item"];
+            this.serving = item["Serving Size"];
             this.calories = item["Calories"];
+            this.fat = item["Fat"];
+            this.protein = item["Protein"];
+            this.vegan = item["Vegan"];
         }
 
-
+        // BUILD ARRAY OF MENU ITEM OBJECTS FROM AIRTABLE BASE 
         fetch('https://api.airtable.com/v0/app3yCHJ9520XS644/Table%201?api_key=keyVUAXlzMFjFfXSE')
             .then(function (response) {
                 return response.json();
             })
-            .then(function (myJson) {
-                console.log(myJson);
-                myJson = myJson.records;
-                for (const key of Object.keys(myJson)) {
-                    let i = new MenuItem(myJson[key]["fields"]);
+            .then(function (json) {
+                console.log(json);
+                json = json.records;
+                for (const key of Object.keys(json)) {
+                    let i = new MenuItem(json[key]["fields"]);
                     cleanMenuData.push(i);
-                    // console.log(key, myJson[key]["fields"]);
-                    console.log("MENU:");
-                    console.log(cleanMenuData);
                 }
+            }).then(function () {
+                console.log(cleanMenuData);
+                $('#nutrition').DataTable({
+                    data: cleanMenuData,
+                    columns: [
+                        { data: 'item' },
+                        { data: 'serving' }, 
+                        { data: 'calories' },
+                        { data: 'fat' },
+                        { data: 'protein' },
+                        { data: 'vegan' }
+                    ]
+                });
             });
+
     </script>
 </head>
 <body>
     <h1>Test</h1>
+    <table id="nutrition" class="display">
+        <thead>
+            <tr>
+                <th>Menu Item</th>
+                <th>Serving Size</th>
+                <th>Calories</th>
+                <th>Fat</th>
+                <th>Protein</th>
+                <th>Vegan?</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
 </body>
 </html>
