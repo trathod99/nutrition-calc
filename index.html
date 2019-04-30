@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Airtable/DataTables Test</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <!-- <script src="node_modules/airtable/build/airtable.browser.js"></script> -->
+    <script src="http://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript">
+        var cleanMenuData = [];
+        // Build clean json object w/ menu items
+        function MenuItem(item) {
+            this.item = item["Menu Item"];
+            this.calories = item["Calories"];
+        }
+
+
+        fetch('https://api.airtable.com/v0/app3yCHJ9520XS644/Table%201?api_key=keyVUAXlzMFjFfXSE')
+            .then(function (response) {
+                return response.json();
+            })
+            .then(function (myJson) {
+                console.log(myJson);
+                myJson = myJson.records;
+                for (const key of Object.keys(myJson)) {
+                    let i = new MenuItem(myJson[key]["fields"]);
+                    cleanMenuData.push(i);
+                    // console.log(key, myJson[key]["fields"]);
+                    console.log("MENU:");
+                    console.log(cleanMenuData);
+                }
+            });
+    </script>
+</head>
+<body>
+    <h1>Test</h1>
+</body>
+</html>
