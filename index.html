@@ -17,6 +17,7 @@
         // Build clean json object w/ menu items
         function MenuItem(item) {
             this.item = item["Menu Item"];
+            this.restaurant = item["Restaurant"];
             this.serving = item["Serving Size"];
             this.calories = item["Calories"];
             this.fat = item["Fat"];
@@ -100,6 +101,7 @@
                     data: cleanMenuData,
                     columns: [
                         { data: 'item' },
+                        { data: 'restaurant' },
                         { data: 'serving' }, 
                         { data: 'calories' },
                         { data: 'fat' },
@@ -133,6 +135,7 @@
         <thead>
             <tr>
                 <th>Menu Item</th>
+                <th>Restaurant</th>
                 <th>Serving Size</th>
                 <th>Calories</th>
                 <th>Fat</th>
