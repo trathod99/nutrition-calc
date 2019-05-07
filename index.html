@@ -8,10 +8,12 @@
     <!-- DEPENDENCIES -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <!-- <script src="node_modules/airtable/build/airtable.browser.js"></script> -->
     <script src="http://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript">
         var cleanMenuData = [];
+        myPlate = [];
         // Build clean json object w/ menu items
         function MenuItem(item) {
             this.item = item["Menu Item"];
@@ -21,6 +23,64 @@
             this.protein = item["Protein"];
             this.vegan = item["Vegan"];
         }
+
+        // PLATE FUNCTIONS
+
+        function addToPlate(item) {
+            myPlate.push(item);
+            updateNutrition(myPlate);
+            drawPlate(myPlate);
+            // console.log(myPlate);
+        }
+
+        function updateNutrition(plate) {
+            var cals = fat = chol = fiber = sod = carb = protein = sugar = 0;
+            for (const key of Object.keys(plate)) {
+                cals += plate[key]["calories"];
+                fat += plate[key]["fat"];
+                protein += plate[key]["protein"];
+            } 
+            $("#calories").text("Calories: " + cals);
+            $("#fat").text("Fat: " + fat);
+            $("#protein").text("Protein: " + protein);
+        }
+
+        function drawPlate(plate) {
+            $("#plate-list").html('');
+            for (const key of Object.keys(plate)) {
+                var li = document.createElement("li");
+                li.textContent = plate[key]["item"];
+                li.className = "plateItem";
+                var del = document.createElement("a");
+                del.textContent = " Delete "
+                del.setAttribute("href", "#delete");
+                del.setAttribute("class", "del");
+                $("#plate-list").append(li);
+                $("#plate-list").append(del);
+            }
+        }
+
+        // CLICK HANDLERS FOR MENU AND PLATE ITEMS
+        $(document).ready(function() {
+
+            // ADD TO PLATE HANDLER
+            $("#nutrition tbody").on('click', 'tr', function () {
+                var rowData = $("#nutrition").DataTable().row(this).data();
+                addToPlate(rowData);
+            });
+
+            // REMOVE FROM PLATE 
+            $("#plate-list").on('click', 'a', function () {
+                for (const key of Object.keys(myPlate)) {
+                    if (myPlate[key]["item"] == this.previousSibling.textContent) {
+                        myPlate.splice(key, 1);
+                        break;
+                    }
+                }
+                drawPlate(myPlate);
+                updateNutrition(myPlate);
+            }); 
+        });
 
         // BUILD ARRAY OF MENU ITEM OBJECTS FROM AIRTABLE BASE 
         fetch('https://api.airtable.com/v0/app3yCHJ9520XS644/Table%201?api_key=keyVUAXlzMFjFfXSE')
@@ -49,10 +109,26 @@
                 });
             });
 
+
     </script>
 </head>
 <body>
     <h1>Test</h1>
+
+    <!-- PLATE NUTRITION -->
+    <div id="plate">
+        <li><span id="calories"></span></li>
+        <li><span id="fat"></span></li>
+        <li><span id="protein"></span></li>
+    </div>
+
+    <div class="plate-list">
+        <ul id="plate-list">
+
+        </ul>
+    </div>
+    
+
     <table id="nutrition" class="display">
         <thead>
             <tr>
