@@ -17,7 +17,11 @@
         var table = [];
         // Build clean json object w/ menu items
         function MenuItem(item) {
-            this.item = item["Menu Item"];
+            this.item = [];
+            this.item.push(item["Menu Item"]);
+            this.item.push(item["Ingredients"]);
+            // this.item.ingredients = item["Ingredients"];
+            // this.ingredients = item["Ingredients"];
             this.restaurant = item["Restaurant"];
             this.serving = item["Serving Size"];
             this.calories = item["Calories"];
@@ -71,7 +75,7 @@
                 addToPlate(rowData);
             });
 
-            // REMOVE FROM PLATE 
+            // REMOVE FROM PLATE HANDLER
             $("#plate-list").on('click', 'a', function () {
                 for (const key of Object.keys(myPlate)) {
                     if (myPlate[key]["item"] == this.previousSibling.textContent) {
@@ -85,13 +89,14 @@
 
         });
 
-        // BUILD TABLE
+        // BUILD TABLE FUNCTION
         function buildTable() {
             console.log(cleanMenuData);
             table = $('#nutrition').DataTable({
                 data: cleanMenuData,
                 columns: [
-                    { data: 'item' },
+                    { data: 'item.0', },
+                    { data: 'ingredients' },
                     { data: 'restaurant' },
                     { data: 'serving' },
                     { data: 'calories' },
@@ -111,23 +116,17 @@
                 console.log(json);
                 json = json.records;
                 for (const key of Object.keys(json)) {
+                    // ADD ICONS TO VEGAN/VEG FIELDS
                     if (json[key]["fields"]["Vegan"]) {
                         json[key]["fields"]["Vegan"] = "<img src=https://via.placeholder.com/20 />"
                     }
+                    // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
                     let i = new MenuItem(json[key]["fields"]);
                     cleanMenuData.push(i);
                 }
             // MAKE DATA TABLE
             }).then(function () {
                 buildTable();
-                /* table.rows().every(function( rowIdx, tableLoop, rowLoop ) {
-                    var data = this.data();
-                    console.log(data);
-                    if (data["vegan"]) {
-                        data["vegan"] = "yas";
-                        buildTable(); 
-                    }
-                }); */
             })
 
 
@@ -154,6 +153,7 @@
         <thead>
             <tr>
                 <th>Menu Item</th>
+                <th>Ingredients</th>
                 <th>Restaurant</th>
                 <th>Serving Size</th>
                 <th>Calories</th>
