@@ -14,6 +14,7 @@
     <script type="text/javascript">
         var cleanMenuData = [];
         myPlate = [];
+        var table = [];
         // Build clean json object w/ menu items
         function MenuItem(item) {
             this.item = item["Menu Item"];
@@ -81,7 +82,25 @@
                 drawPlate(myPlate);
                 updateNutrition(myPlate);
             }); 
+
         });
+
+        // BUILD TABLE
+        function buildTable() {
+            console.log(cleanMenuData);
+            table = $('#nutrition').DataTable({
+                data: cleanMenuData,
+                columns: [
+                    { data: 'item' },
+                    { data: 'restaurant' },
+                    { data: 'serving' },
+                    { data: 'calories' },
+                    { data: 'fat' },
+                    { data: 'protein' },
+                    { data: 'vegan' }
+                ]
+            }); 
+        }
 
         // BUILD ARRAY OF MENU ITEM OBJECTS FROM AIRTABLE BASE 
         fetch('https://api.airtable.com/v0/app3yCHJ9520XS644/Table%201?api_key=keyVUAXlzMFjFfXSE')
@@ -92,24 +111,24 @@
                 console.log(json);
                 json = json.records;
                 for (const key of Object.keys(json)) {
+                    if (json[key]["fields"]["Vegan"]) {
+                        json[key]["fields"]["Vegan"] = "<img src=https://via.placeholder.com/20 />"
+                    }
                     let i = new MenuItem(json[key]["fields"]);
                     cleanMenuData.push(i);
                 }
+            // MAKE DATA TABLE
             }).then(function () {
-                console.log(cleanMenuData);
-                $('#nutrition').DataTable({
-                    data: cleanMenuData,
-                    columns: [
-                        { data: 'item' },
-                        { data: 'restaurant' },
-                        { data: 'serving' }, 
-                        { data: 'calories' },
-                        { data: 'fat' },
-                        { data: 'protein' },
-                        { data: 'vegan' }
-                    ]
-                });
-            });
+                buildTable();
+                /* table.rows().every(function( rowIdx, tableLoop, rowLoop ) {
+                    var data = this.data();
+                    console.log(data);
+                    if (data["vegan"]) {
+                        data["vegan"] = "yas";
+                        buildTable(); 
+                    }
+                }); */
+            })
 
 
     </script>
