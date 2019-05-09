@@ -34,7 +34,6 @@
             myPlate.push(item);
             updateNutrition(myPlate);
             drawPlate(myPlate);
-            // console.log(myPlate);
         }
 
         function updateNutrition(plate) {
@@ -53,7 +52,7 @@
             $("#plate-list").html('');
             for (const key of Object.keys(plate)) {
                 var li = document.createElement("li");
-                li.textContent = plate[key]["item"][0];
+                li.textContent = plate[key]["item"][0] + " from " + plate[key]["location"];
                 li.className = "plateItem";
                 var del = document.createElement("a");
                 del.textContent = " Delete "
@@ -76,7 +75,8 @@
             // REMOVE FROM PLATE HANDLER
             $("#plate-list").on('click', 'a', function () {
                 for (const key of Object.keys(myPlate)) {
-                    if (myPlate[key]["item"][0] == this.previousSibling.textContent) {
+                    // THIS LOOKS WEIRD BECAUSE WE DELETE ITEMS BASED ON WHETHER OR NOT THEIR TITLE IN THE PLATE LIST MATCH THE ITEM THAT WAS CLICKED - SO WE HAVE TO TEST FOR "XYZ FROM ABC" INSTEAD OF JUST "XYZ"
+                    if (myPlate[key]["item"][0] + " from " + myPlate[key]["location"] == this.previousSibling.textContent) {
                         myPlate.splice(key, 1);
                         break;
                     }
@@ -89,7 +89,6 @@
 
         // BUILD TABLE FUNCTION
         function buildTable() {
-            console.log(cleanMenuData);
             table = $('#nutrition').DataTable({
                 data: cleanMenuData,
                 columns: [
@@ -106,15 +105,22 @@
         }
 
         // BUILD ARRAY OF MENU ITEM OBJECTS FROM AIRTABLE BASE 
+        // json = []
+        // function fetchURL ()
+        //     make request
+        //     json = json + response
+        //     if offset => return offset
+        // fetch.then ( while  )
         fetch('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE')
             .then(function (response) {
                 return response.json();
             })
             .then(function (json1) {
-                // console.log(json1);
+                console.log(json1);
                 offset = json1.offset;
                 json1 = json1.records
                 offsetURL1 = 'https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE';
+                // DUMB WAY OF HANDLING OFFSETS/PAGINATION SINCE AIRTABLE ONLY RETURNS 100 RESULTS AT A TIME - FIX THIS
                 fetch(offsetURL1, {
                     'offset': offset
                 })
@@ -122,11 +128,10 @@
                         return response.json();
                     })
                     .then(function (json) {
+                        console.log(json);
                         json = json.records
                         json = json1.concat(json);
-                        // console.log(json);
                         for (const key of Object.keys(json)) {
-                            // console.log(json[key]);
                             // ADD ICONS TO VEGAN/VEG FIELDS
                             if (json[key]["fields"]["vegan"] == "1") {
                                 json[key]["fields"]["vegan"] = "<img src=https://via.placeholder.com/20 />";
@@ -137,8 +142,8 @@
                             let i = new MenuItem(json[key]["fields"]);
                             cleanMenuData.push(i);
                         }
+                    // BUILD THE DATATABLE
                     }).then(function () {
-                        console.log("test");
                         buildTable();
                     })
             });
