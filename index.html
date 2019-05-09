@@ -18,16 +18,14 @@
         // Build clean json object w/ menu items
         function MenuItem(item) {
             this.item = [];
-            this.item.push(item["Menu Item"]);
-            this.item.push(item["Ingredients"]);
-            // this.item.ingredients = item["Ingredients"];
-            // this.ingredients = item["Ingredients"];
-            this.restaurant = item["Restaurant"];
-            this.serving = item["Serving Size"];
-            this.calories = item["Calories"];
-            this.fat = item["Fat"];
-            this.protein = item["Protein"];
-            this.vegan = item["Vegan"];
+            this.item.push(item["name"]);
+            this.item.push(item["ingredients"]);
+            this.location = item["location"];
+            this.serving = item["servingsize"];
+            this.calories = item["calories"];
+            this.fat = item["totalfat"];
+            this.protein = item["protein"];
+            this.vegan = item["vegan"];
         }
 
         // PLATE FUNCTIONS
@@ -55,7 +53,7 @@
             $("#plate-list").html('');
             for (const key of Object.keys(plate)) {
                 var li = document.createElement("li");
-                li.textContent = plate[key]["item"];
+                li.textContent = plate[key]["item"][0];
                 li.className = "plateItem";
                 var del = document.createElement("a");
                 del.textContent = " Delete "
@@ -78,7 +76,7 @@
             // REMOVE FROM PLATE HANDLER
             $("#plate-list").on('click', 'a', function () {
                 for (const key of Object.keys(myPlate)) {
-                    if (myPlate[key]["item"] == this.previousSibling.textContent) {
+                    if (myPlate[key]["item"][0] == this.previousSibling.textContent) {
                         myPlate.splice(key, 1);
                         break;
                     }
@@ -96,8 +94,8 @@
                 data: cleanMenuData,
                 columns: [
                     { data: 'item.0', },
-                    { data: 'ingredients' },
-                    { data: 'restaurant' },
+                    { data: 'item.1' },
+                    { data: 'location' },
                     { data: 'serving' },
                     { data: 'calories' },
                     { data: 'fat' },
@@ -108,26 +106,42 @@
         }
 
         // BUILD ARRAY OF MENU ITEM OBJECTS FROM AIRTABLE BASE 
-        fetch('https://api.airtable.com/v0/app3yCHJ9520XS644/Table%201?api_key=keyVUAXlzMFjFfXSE')
+        fetch('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE')
             .then(function (response) {
                 return response.json();
             })
-            .then(function (json) {
-                console.log(json);
-                json = json.records;
-                for (const key of Object.keys(json)) {
-                    // ADD ICONS TO VEGAN/VEG FIELDS
-                    if (json[key]["fields"]["Vegan"]) {
-                        json[key]["fields"]["Vegan"] = "<img src=https://via.placeholder.com/20 />"
-                    }
-                    // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
-                    let i = new MenuItem(json[key]["fields"]);
-                    cleanMenuData.push(i);
-                }
-            // MAKE DATA TABLE
-            }).then(function () {
-                buildTable();
-            })
+            .then(function (json1) {
+                // console.log(json1);
+                offset = json1.offset;
+                json1 = json1.records
+                offsetURL1 = 'https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE';
+                fetch(offsetURL1, {
+                    'offset': offset
+                })
+                    .then(function (response) {
+                        return response.json();
+                    })
+                    .then(function (json) {
+                        json = json.records
+                        json = json1.concat(json);
+                        // console.log(json);
+                        for (const key of Object.keys(json)) {
+                            // console.log(json[key]);
+                            // ADD ICONS TO VEGAN/VEG FIELDS
+                            if (json[key]["fields"]["vegan"] == "1") {
+                                json[key]["fields"]["vegan"] = "<img src=https://via.placeholder.com/20 />";
+                            } else {
+                                json[key]["fields"]["vegan"] = "";
+                            }
+                            // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
+                            let i = new MenuItem(json[key]["fields"]);
+                            cleanMenuData.push(i);
+                        }
+                    }).then(function () {
+                        console.log("test");
+                        buildTable();
+                    })
+            });
 
 
     </script>
