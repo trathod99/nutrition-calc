@@ -111,42 +111,66 @@
         //     json = json + response
         //     if offset => return offset
         // fetch.then ( while  )
-        fetch('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE')
-            .then(function (response) {
-                return response.json();
-            })
-            .then(function (json1) {
-                console.log(json1);
-                offset = json1.offset;
-                json1 = json1.records
-                offsetURL1 = 'https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE';
-                // DUMB WAY OF HANDLING OFFSETS/PAGINATION SINCE AIRTABLE ONLY RETURNS 100 RESULTS AT A TIME - FIX THIS
-                fetch(offsetURL1, {
-                    'offset': offset
-                })
-                    .then(function (response) {
-                        return response.json();
-                    })
-                    .then(function (json) {
-                        console.log(json);
-                        json = json.records
-                        json = json1.concat(json);
-                        for (const key of Object.keys(json)) {
-                            // ADD ICONS TO VEGAN/VEG FIELDS
-                            if (json[key]["fields"]["vegan"] == "1") {
-                                json[key]["fields"]["vegan"] = "<img src=https://via.placeholder.com/20 />";
-                            } else {
-                                json[key]["fields"]["vegan"] = "";
-                            }
-                            // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
-                            let i = new MenuItem(json[key]["fields"]);
-                            cleanMenuData.push(i);
-                        }
-                    // BUILD THE DATATABLE
-                    }).then(function () {
-                        buildTable();
-                    })
+
+        var resJSON = []
+        var offset = "";
+        function fetchURL(url, offset) {
+            var reqURL = url + "&offset=" + offset
+            fetch(reqURL).then(function(res) {
+                return res.json();
+            }).then(function (json){
+                offset = json.offset;
+                console.log(offset);
+                resJSON = resJSON.concat(json.records);
+                console.log(resJSON);
+            }).then(function () {
+                if (offset != "") {
+                    console.log("offset detected");
+                    fetchURL(url, offset);
+                }
             });
+            
+        }
+
+        fetchURL('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE', "");
+
+
+        // fetch('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE')
+        //     .then(function (response) {
+        //         return response.json();
+        //     })
+        //     .then(function (json1) {
+        //         console.log(json1);
+        //         offset = json1.offset;
+        //         json1 = json1.records
+        //         offsetURL1 = 'https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE';
+        //         // DUMB WAY OF HANDLING OFFSETS/PAGINATION SINCE AIRTABLE ONLY RETURNS 100 RESULTS AT A TIME - FIX THIS
+        //         fetch(offsetURL1, {
+        //             'offset': offset
+        //         })
+        //             .then(function (response) {
+        //                 return response.json();
+        //             })
+        //             .then(function (json) {
+        //                 console.log(json);
+        //                 json = json.records
+        //                 json = json1.concat(json);
+        //                 for (const key of Object.keys(json)) {
+        //                     // ADD ICONS TO VEGAN/VEG FIELDS
+        //                     if (json[key]["fields"]["vegan"] == "1") {
+        //                         json[key]["fields"]["vegan"] = "<img src=https://via.placeholder.com/20 />";
+        //                     } else {
+        //                         json[key]["fields"]["vegan"] = "";
+        //                     }
+        //                     // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
+        //                     let i = new MenuItem(json[key]["fields"]);
+        //                     cleanMenuData.push(i);
+        //                 }
+        //             // BUILD THE DATATABLE
+        //             }).then(function () {
+        //                 buildTable();
+        //             })
+        //     });
 
 
     </script>
