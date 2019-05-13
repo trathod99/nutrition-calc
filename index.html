@@ -124,7 +124,7 @@
                 resJSON = resJSON.concat(json.records);
                 console.log(resJSON);
             }).then(function () {
-                if (offset != "") {
+                if (offset) {
                     console.log("offset detected");
                     fetchURL(url, offset);
                 }
