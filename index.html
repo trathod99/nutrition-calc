@@ -20,12 +20,21 @@
             this.item = [];
             this.item.push(item["name"]);
             this.item.push(item["ingredients"]);
-            this.location = item["location"];
             this.serving = item["servingsize"];
             this.calories = item["calories"];
             this.fat = item["totalfat"];
+            this.sodium = item["sodium"];
+            this.carbs = item["carbs"];
+            this.fiber = item["fiber"];
+            this.sugar = item["sugar"];
             this.protein = item["protein"];
+            this.vegetarian = item["vegetarian"];
             this.vegan = item["vegan"];
+            this.glutenfree = item["glutenfree"];
+            this.dairyfree = item["dairyfree"];
+            this.soyfree = item["soyfree"];
+            this.peanutfree = item["peanutfree"];
+            this.location = item["location"];
         }
 
         // PLATE FUNCTIONS
@@ -97,6 +106,31 @@
                 } else {
                     json[key]["fields"]["vegan"] = "";
                 }
+                if (json[key]["fields"]["vegetarian"] == "1") {
+                    json[key]["fields"]["vegetarian"] = "<img src=https://via.placeholder.com/20 />";
+                } else {
+                    json[key]["fields"]["vegetarian"] = "";
+                }
+                if (json[key]["fields"]["glutenfree"] == "1") {
+                    json[key]["fields"]["glutenfree"] = "<img src=https://via.placeholder.com/20 />";
+                } else {
+                    json[key]["fields"]["glutenfree"] = "";
+                }
+                if (json[key]["fields"]["dairyfree"] == "1") {
+                    json[key]["fields"]["dairyfree"] = "<img src=https://via.placeholder.com/20 />";
+                } else {
+                    json[key]["fields"]["dairyfree"] = "";
+                }
+                if (json[key]["fields"]["soyfree"] == "1") {
+                    json[key]["fields"]["soyfree"] = "<img src=https://via.placeholder.com/20 />";
+                } else {
+                    json[key]["fields"]["soyfree"] = "";
+                }
+                if (json[key]["fields"]["peanutfree"] == "1") {
+                    json[key]["fields"]["peanutfree"] = "<img src=https://via.placeholder.com/20 />";
+                } else {
+                    json[key]["fields"]["peanutfree"] = "";
+                }
                 // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
                 let i = new MenuItem(json[key]["fields"]);
                 cleanMenuData.push(i);
@@ -110,13 +144,22 @@
                 data: cleanMenuData,
                 columns: [
                     { data: 'item.0', },
-                    { data: 'item.1' },
-                    { data: 'location' },
                     { data: 'serving' },
                     { data: 'calories' },
                     { data: 'fat' },
+                    { data: 'sodium' },
+                    { data: 'carbs' },
+                    { data: 'fiber' },
+                    { data: 'sugar' },
                     { data: 'protein' },
-                    { data: 'vegan' }
+                    { data: 'vegetarian' },
+                    { data: 'vegan' },
+                    { data: 'glutenfree' },
+                    { data: 'dairyfree' },
+                    { data: 'soyfree' },
+                    { data: 'peanutfree' },
+                    { data: 'item.1' },
+                    { data: 'location' }
                 ]
             }); 
         }
@@ -172,13 +215,22 @@
         <thead>
             <tr>
                 <th>Menu Item</th>
-                <th>Ingredients</th>
-                <th>Restaurant</th>
                 <th>Serving Size</th>
                 <th>Calories</th>
                 <th>Fat</th>
+                <th>Sodium</th>
+                <th>Carbs</th>
+                <th>Fiber</th>
+                <th>Sugar</th>
                 <th>Protein</th>
+                <th>Vegetarian?</th>
                 <th>Vegan?</th>
+                <th>Gluten Free?</th>
+                <th>Dairy Free?</th>
+                <th>Soy Free?</th>
+                <th>Peanut Free?</th>
+                <th>Ingredients</th>
+                <th>Restaurant</th>
             </tr>
         </thead>
         <tbody>
