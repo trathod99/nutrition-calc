@@ -104,35 +104,46 @@
             }); 
         }
 
-        // BUILD ARRAY OF MENU ITEM OBJECTS FROM AIRTABLE BASE 
-        // json = []
-        // function fetchURL ()
-        //     make request
-        //     json = json + response
-        //     if offset => return offset
-        // fetch.then ( while  )
-
         var resJSON = []
         var offset = "";
+
         function fetchURL(url, offset) {
-            var reqURL = url + "&offset=" + offset
-            fetch(reqURL).then(function(res) {
-                return res.json();
-            }).then(function (json){
-                offset = json.offset;
-                console.log(offset);
-                resJSON = resJSON.concat(json.records);
+            return new Promise((resolve, reject) => {
+                var reqURL = url + "&offset=" + offset
+                fetch(reqURL).then(function (res) {
+                    return res.json();
+                }).then(function (json) {
+                    offset = json.offset;
+                    resJSON = resJSON.concat(json.records);
+                }).then(function () {
+                    if (offset) {
+                        fetchURL(url, offset);
+                    } else {
+                        resolve();
+                        populateMenu(resJSON);
+                    }
+                });
                 console.log(resJSON);
-            }).then(function () {
-                if (offset) {
-                    console.log("offset detected");
-                    fetchURL(url, offset);
-                }
-            });
-            
+            })
         }
 
         fetchURL('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE', "");
+
+        function populateMenu(json) {
+            console.log(json.length);
+            for (const key of Object.keys(json)) {
+                // ADD ICONS TO VEGAN/VEG FIELDS
+                if (json[key]["fields"]["vegan"] == "1") {
+                    json[key]["fields"]["vegan"] = "<img src=https://via.placeholder.com/20 />";
+                } else {
+                    json[key]["fields"]["vegan"] = "";
+                }
+                // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
+                let i = new MenuItem(json[key]["fields"]);
+                cleanMenuData.push(i);
+            }
+            buildTable();
+        }
 
 
         // fetch('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE')
