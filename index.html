@@ -177,6 +177,7 @@
         var offset = "";
 
         function fetchURL(url, venue = null, offset = "") {
+            $.fn.dataTable.ext.errMode = 'none';
             return new Promise((resolve, reject) => {
                 var reqURL = url + "&offset=" + offset
                 fetch(reqURL).then(function (res) {
@@ -198,7 +199,8 @@
 
         fetchURL('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE', undefined, "");
 
-        function venueFilter(venue) {
+        function venueFilter() {
+            venue = document.getElementById("filterMenu").value;
             cleanMenuData = [];
             for (const key of Object.keys(resJSON)) {
                 if (resJSON[key]["fields"]["location"] == venue) {
@@ -218,6 +220,7 @@
                 cleanMenuData.push(i);
             }
             t.clear().rows.add(cleanMenuData).draw(); 
+            document.getElementById("filterMenu").value = "";
         }
 
 
@@ -239,6 +242,16 @@
         </ul>
     </div>
     
+    <div id="filter">
+        <select onchange="venueFilter()" id="filterMenu" >
+            <option value=""></option>
+            <option value="Tu Taco">Tu Taco</option>
+            <option value="Mustang Station">Mustang Station</option>
+            <option value="805 Kitchen">805 Kitchen</option>
+            <option value="Lucy's">Lucy's</option>
+          </select>
+          <a href="#clearFilter" onclick="clearFilter()">Clear Filter</a>
+    </div>
 
     <table id="nutrition" class="display">
         <thead>
