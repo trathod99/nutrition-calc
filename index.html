@@ -9,7 +9,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link rel="stylesheet" type="text/css" href="http://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="css/style.css">
-    <!-- <script src="node_modules/airtable/build/airtable.browser.js"></script> -->
     <script src="http://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script type="text/javascript">
         var cleanMenuData = [];
@@ -98,6 +97,7 @@
 
         // TURN JSON OBJECTS INTO MENU ITEM OBJECTS AND ADD TO MENUDATA ARRAY
         function populateMenu(json, venue) {
+            cleanMenuData = [];
             console.log(json.length);
             for (const key of Object.keys(json)) {
                 // ADD ICONS TO VEGAN/VEG FIELDS
@@ -131,25 +131,24 @@
                 } else {
                     json[key]["fields"]["peanutfree"] = "";
                 }
-                // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA
+                // CREATE NEW MENUITEM OBJECT FROM AIRTABLE DATA - FILTER BY VENUE IF A VENUE IF SPECIFIED
                 if (venue != null) {
-                    console.log("Venue: " + json[key]["fields"]["location"]);
-                    console.log(venue);
                     if (json[key]["fields"]["location"] == venue) {
                         let i = new MenuItem(json[key]["fields"]);
                         cleanMenuData.push(i);
                     }
+                } else if (venue == null) {
+                    let i = new MenuItem(json[key]["fields"]);
+                    cleanMenuData.push(i);
                 }
-                // let i = new MenuItem(json[key]["fields"]);
-                // cleanMenuData.push(i);
             }
-            buildTable();
+            buildTable(cleanMenuData);
         }
 
         // BUILD TABLE FROM ARRAY OF MENU ITEM OBJECTS
-        function buildTable() {
-            table = $('#nutrition').DataTable({
-                data: cleanMenuData,
+        function buildTable(data) {
+            t = $('#nutrition').DataTable({
+                data: data,
                 columns: [
                     { data: 'item.0', },
                     { data: 'serving' },
@@ -177,7 +176,7 @@
         var resJSON = []
         var offset = "";
 
-        function fetchURL(url, offset = "", venue = null) {
+        function fetchURL(url, venue = null, offset = "") {
             return new Promise((resolve, reject) => {
                 var reqURL = url + "&offset=" + offset
                 fetch(reqURL).then(function (res) {
@@ -187,10 +186,9 @@
                     resJSON = resJSON.concat(json.records);
                 }).then(function () {
                     if (offset) {
-                        fetchURL(url, offset);
+                        fetchURL(url, venue, offset);
                     } else {
                         resolve();
-                        console.log(venue);
                         populateMenu(resJSON, venue);
                     }
                 });
@@ -198,7 +196,29 @@
             })
         }
 
-        fetchURL('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE', "", "Tu Taco");
+        fetchURL('https://api.airtable.com/v0/appWiY0eBD54EP3TA/Imported%20table?api_key=keyVUAXlzMFjFfXSE', undefined, "");
+
+        function venueFilter(venue) {
+            cleanMenuData = [];
+            for (const key of Object.keys(resJSON)) {
+                if (resJSON[key]["fields"]["location"] == venue) {
+                    let i = new MenuItem(resJSON[key]["fields"]);
+                    cleanMenuData.push(i);
+                }
+            }
+            console.log(cleanMenuData);
+            t.clear().rows.add(cleanMenuData).draw();
+            // buildTable(cleanMenuData);
+        }
+
+        function clearFilter() {
+            cleanMenuData = []
+            for (const key of Object.keys(resJSON)) {
+                let i = new MenuItem(resJSON[key]["fields"]);
+                cleanMenuData.push(i);
+            }
+            t.clear().rows.add(cleanMenuData).draw(); 
+        }
 
 
     </script>
